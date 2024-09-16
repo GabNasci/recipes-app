@@ -1,8 +1,10 @@
 import ModalCustom from '@/components/Modal';
 import { Recipe } from '@/types/RecipeType';
 import axios from 'axios';
+import { router } from 'expo-router';
 import { useCallback, useEffect, useState } from 'react';
-import { Image, StyleSheet, Platform, View, Text, TextInput, Alert, TouchableOpacity, ScrollView, Modal, Button } from 'react-native';
+import { Image, StyleSheet, Platform, View, TextInput, Alert, TouchableOpacity, ScrollView, Modal } from 'react-native';
+import { ActivityIndicator, MD2Colors, Button, Searchbar, Card, Text } from 'react-native-paper';
 
 import { SafeAreaView } from 'react-native-safe-area-context';
 
@@ -10,30 +12,22 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 export default function HomeScreen() {
 
     const [inputValue, setInputValue] = useState<string>()
+    const [loading, setLoading] = useState<boolean>(false)
     const [recipes, setRecipes] = useState<Recipe[]>([])
-    const [recipeSelected, setRecipeSelected] = useState<Recipe>()
-    const [visible, setVisible] = useState(false)
 
-    const getRecipes = useCallback(async () => {
+    const getRecipes = async () => {
         try {
+            setLoading(true)
             const result = await axios.get(`https://api.spoonacular.com/recipes/complexSearch?query=${inputValue}&apiKey=a9b670372ec945b9bca9cf780304842e`)
             if (!result) return Alert.alert("Não encontrado")
             setRecipes(result.data.results)
+            setLoading(false)
 
         } catch (error) {
             console.log(error)
         }
-    }, [inputValue])
-
-    const handleModal = (recipe: Recipe) => {
-        setRecipeSelected(recipe)
-        setVisible(true)
     }
 
-
-    useEffect(() => {
-        getRecipes()
-    }, [getRecipes])
 
     return (
         <SafeAreaView style={{ flex: 1, backgroundColor: "grey" }}>
@@ -42,58 +36,53 @@ export default function HomeScreen() {
                     <Text style={{ fontSize: 20, fontWeight: "bold" }}>Busque Receitas</Text>
                 </View>
                 <View style={{ alignItems: "center", padding: 20 }}>
-                    <TextInput
-                        placeholder='digite aqui'
+                    <Searchbar
+                        placeholder="Digite aqui"
                         onChangeText={newValue => setInputValue(newValue)}
-                        value={inputValue}
-                        style={{ width: 300, borderWidth: 1, borderColor: "grey", borderRadius: 8, height: 40, padding: 10 }}
+                        value={inputValue ?? ""}
                     />
+                    <Button style={{ marginTop: 10 }} mode="contained" onPress={getRecipes}>
+                        Buscar
+                    </Button>
                 </View>
                 <ScrollView>
-                    {recipes ?
+                    <ActivityIndicator animating={loading} color={MD2Colors.blue300} />
+                    {recipes.length ?
                         recipes.map(recipe => (
-                            <TouchableOpacity
-                                onPress={() => handleModal(recipe)}
-                                style={{ backgroundColor: "grey", padding: 20, margin: 20, alignItems: "center", gap: 10 }}
-                                key={recipe.id}
-                            >
+                            // <TouchableOpacity
+                            //     onPress={() => router.push({
+                            //         pathname: "./recipe",
+                            //         params: { id: recipe.id }
+                            //     })}
+                            //     style={{ backgroundColor: "grey", padding: 20, margin: 20, alignItems: "center", gap: 10 }}
+                            //     key={recipe.id}
+                            // >
 
-                                <Text style={{ color: "white", fontWeight: "bold", fontSize: 15 }}>
-                                    {recipe.title}
-                                </Text>
-                                <Image
-                                    source={{ uri: recipe.image }}
-                                    resizeMode='cover'
-                                    style={{ width: 300, height: 100 }}
-                                />
+                            //     <Text style={{ color: "white", fontWeight: "bold", fontSize: 15 }}>
+                            //         {recipe.title}
+                            //     </Text>
+                            //     <Image
+                            //         source={{ uri: recipe.image }}
+                            //         resizeMode='cover'
+                            //         style={{ width: 300, height: 100 }}
+                            //     />
 
-                            </TouchableOpacity>
+                            // </TouchableOpacity>
+                            <Card mode='contained' style={{marginBottom: 10, marginHorizontal: 20}} onPress={() => router.push({
+                                pathname: "./recipe",
+                                params: { id: recipe.id }
+                            })}>
+                                <Card.Content>
+                                    <Text variant="titleLarge">{recipe.title}</Text>
+                                </Card.Content>
+                                <Card.Cover resizeMode='cover' source={{ uri: recipe.image }} />
+                            </Card>
 
-                        )) : <Text>Carregando...</Text>
+                        )) : ""
                     }
                 </ScrollView>
 
             </View>
-
-            <Modal
-                animationType="fade"
-                visible={visible}
-                transparent={true}
-                style={{
-                    position: "absolute",
-                    top: 200
-                }}
-            >
-                <View style={styles.modalOverlay}>
-                    <View style={styles.modalView}>
-                        <Text style={styles.modalText}>{recipeSelected?.title}</Text>
-                        <Button
-                            title='Fechar'
-                            onPress={() => setVisible(false)}
-                        />
-                    </View>
-                </View>
-            </Modal>
         </SafeAreaView>
 
     );
