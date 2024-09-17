@@ -26,7 +26,7 @@ export default function TabLayout() {
         }}
       />
       <Tabs.Screen
-        name="explore"
+        name="saves"
         options={{
           title: 'Receitas Salvas',
           tabBarShowLabel: false,

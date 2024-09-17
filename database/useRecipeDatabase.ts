@@ -10,7 +10,7 @@ export function useRecipeDatabase() {
             `)
 
         const ingridientStatement = await database.prepareAsync(`
-                INSERT INTO ingridient (id, name, recipe_id) VALUES ($id, $name, $recipe_id);
+                INSERT INTO ingridients (name, recipe_id) VALUES ($name, $recipe_id);
             `)
 
         try {
@@ -23,7 +23,6 @@ export function useRecipeDatabase() {
 
             for( const ingridient of data.extendedIngredients) {
                 await ingridientStatement.executeAsync({
-                    $id: ingridient.id,
                     $name: ingridient.name,
                     $recipe_id: data.id
                 })
@@ -40,26 +39,28 @@ export function useRecipeDatabase() {
 
     async function getAllRecipes() {
         try {
-            const query = "SELECT * FROM recipes"
+            const query = "SELECT * FROM recipes;"
 
-            const response = await database.getAllAsync(query)
+            const response = await database.getAllAsync<RecipeType>(query)
 
             return response
         } catch (error) {
-            
+            throw error
         }
     }
 
     async function getAllIngridients(id: number) {
         try {
-            const query = "SELECT * FROM ingridients WHERE recipe_id = $id"
+            const query = `SELECT * FROM ingridients WHERE recipe_id = ${id};`
 
+            const result = await database.getAllAsync(query)
             
+            return result
         } catch (error) {
-            
+            throw error
         }
     }
 
-return {save}
+return {save, getAllIngridients, getAllRecipes}
 }
 

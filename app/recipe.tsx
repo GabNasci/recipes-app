@@ -1,3 +1,4 @@
+import { useRecipeDatabase } from "@/database/useRecipeDatabase";
 import { RecipeType } from "@/types/RecipeType";
 import axios from "axios";
 import { useGlobalSearchParams } from "expo-router";
@@ -12,6 +13,8 @@ const Recipe = () => {
 
     const [recipe, setRecipe] = useState<RecipeType>()
 
+    const recipeDatabase = useRecipeDatabase()
+
     const getRecipe = useCallback(async () => {
         try {
             const response = await axios.get(`https://api.spoonacular.com/recipes/${id}/information?apiKey=a9b670372ec945b9bca9cf780304842e`)
@@ -23,12 +26,18 @@ const Recipe = () => {
     }, [recipe])
 
     const handleSave = async () => {
-        
+        try {
+            if(!recipe) return Alert.alert("Não foi possível salvar a receita.")
+            await recipeDatabase.save(recipe)
+            
+        } catch (error) {
+            console.log(error)
+        }
     }
 
     useEffect(() => {
         getRecipe()
-    }, [])
+    }, [getRecipe])
 
     return (
         <SafeAreaView style={{ flex: 1, backgroundColor: "grey" }}>
@@ -41,8 +50,8 @@ const Recipe = () => {
                         style={{width: 300, height: 200}}                   
                     />
                     <Text>{recipe.readyInMinutes + " minutos"}</Text>
-                    {recipe.extendedIngredients.map((ingridient) => (
-                        <Text key={ingridient.id}>{ingridient.name}</Text>
+                    {recipe.extendedIngredients.map((ingridient, key) => (
+                        <Text key={key}>{ingridient.name}</Text>
                     ))}
                     <Button title="Salvar" onPress={handleSave}/>
 
