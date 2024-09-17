@@ -1,6 +1,12 @@
-export type Recipe = {
+export type RecipeType = {
     id: number,
     title: string,
     image: string,
-    imageType: string
+    readyInMinutes: number,
+    extendedIngredients: IngridientType[]
+}
+
+type IngridientType = {
+    id: number,
+    name: string
 }

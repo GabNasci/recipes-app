@@ -1,5 +1,5 @@
 import ModalCustom from '@/components/Modal';
-import { Recipe } from '@/types/RecipeType';
+import { RecipeType } from '@/types/RecipeType';
 import axios from 'axios';
 import { router } from 'expo-router';
 import { useCallback, useEffect, useState } from 'react';
@@ -13,7 +13,7 @@ export default function HomeScreen() {
 
     const [inputValue, setInputValue] = useState<string>()
     const [loading, setLoading] = useState<boolean>(false)
-    const [recipes, setRecipes] = useState<Recipe[]>([])
+    const [recipes, setRecipes] = useState<RecipeType[]>([])
 
     const getRecipes = async () => {
         try {
@@ -49,26 +49,7 @@ export default function HomeScreen() {
                     <ActivityIndicator animating={loading} color={MD2Colors.blue300} />
                     {recipes.length ?
                         recipes.map(recipe => (
-                            // <TouchableOpacity
-                            //     onPress={() => router.push({
-                            //         pathname: "./recipe",
-                            //         params: { id: recipe.id }
-                            //     })}
-                            //     style={{ backgroundColor: "grey", padding: 20, margin: 20, alignItems: "center", gap: 10 }}
-                            //     key={recipe.id}
-                            // >
-
-                            //     <Text style={{ color: "white", fontWeight: "bold", fontSize: 15 }}>
-                            //         {recipe.title}
-                            //     </Text>
-                            //     <Image
-                            //         source={{ uri: recipe.image }}
-                            //         resizeMode='cover'
-                            //         style={{ width: 300, height: 100 }}
-                            //     />
-
-                            // </TouchableOpacity>
-                            <Card mode='contained' style={{marginBottom: 10, marginHorizontal: 20}} onPress={() => router.push({
+                            <Card key={recipe.id} mode='contained' style={{marginBottom: 10, marginHorizontal: 20}} onPress={() => router.push({
                                 pathname: "./recipe",
                                 params: { id: recipe.id }
                             })}>

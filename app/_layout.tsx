@@ -4,8 +4,10 @@ import { Stack } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import { useEffect } from 'react';
 import 'react-native-reanimated';
+import { SQLiteProvider } from 'expo-sqlite';
 
 import { useColorScheme } from '@/hooks/useColorScheme';
+import { initializeDatabase } from '@/database/initializeDatabase';
 
 // Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync();
@@ -27,9 +29,11 @@ export default function RootLayout() {
   }
 
   return (
+    <SQLiteProvider databaseName='recipeDatabase.db' onInit={initializeDatabase}>
       <Stack>
         <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
         <Stack.Screen name="recipe" />
       </Stack>
+    </SQLiteProvider>
   );
 }
